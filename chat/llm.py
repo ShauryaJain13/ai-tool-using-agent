@@ -1,5 +1,6 @@
 from chat.config import Configuration
 
+
 class LLMClient:
     """
     This class is to communicate and interact with the LLM
@@ -19,19 +20,18 @@ class LLMClient:
             model=self.model
         )
         return response
-        
 
     def _parse_response(self, response):
         """
-        This function parses and changes the output of the LLM to frame the 
+        This function parses and changes the output of the LLM to frame the
         response in a way that the user is able to understand
         """
         return response.choices[0].message.content
 
-
     def generate(self, messages):
         """
-        This function is to generate a response from the LLM to the user's prompt
+        This function is to generate a response from the LLM to the user's
+        prompt
         """
         try:
             response = self._send_request(messages)
@@ -41,12 +41,17 @@ class LLMClient:
         except Exception as e:
             self._handle_error(e)
             return "Sorry, I couldn't contact the language model"
-            
+
+    def tool_calling():
+        """
+        This is the function that will send the message to the
+        LLM that a tool must be called/used
+        """
 
     def _handle_error(self, error):
         """
-        This function is to handle any errors that may occur when 
-        interacting with the LLM or the user, such as insufficient tokens, 
+        This function is to handle any errors that may occur when
+        interacting with the LLM or the user, such as insufficient tokens,
         connection timeout, etc.
         """
         print(error)
