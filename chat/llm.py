@@ -11,22 +11,22 @@ class LLMClient:
         self.client = config.client
         self.model = config.model_name
 
-    def _send_request(self, messages):
+    def _send_request(self, messages, tools=None):
         """
         This function creates a connection between the LLM model and the user
         """
         response = self.client.chat.completions.create(
             messages=messages,
-            model=self.model
+            model=self.model,
+            tools=tools
         )
         return response
 
     def _parse_response(self, response):
         """
-        This function parses and changes the output of the LLM to frame the
-        response in a way that the user is able to understand
+        This function parses and translates the output of the LLM
         """
-        return response.choices[0].message.content
+        return response.choices[0].message
 
     def generate(self, messages):
         """
@@ -42,16 +42,10 @@ class LLMClient:
             self._handle_error(e)
             return "Sorry, I couldn't contact the language model"
 
-    def tool_calling():
-        """
-        This is the function that will send the message to the
-        LLM that a tool must be called/used
-        """
-
     def _handle_error(self, error):
         """
         This function is to handle any errors that may occur when
         interacting with the LLM or the user, such as insufficient tokens,
         connection timeout, etc.
         """
-        print(error)
+        print(f"Error: {error}")

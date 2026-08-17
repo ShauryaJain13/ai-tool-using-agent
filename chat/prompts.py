@@ -1,4 +1,4 @@
-from chat.history import History
+from agent.memory import Memory
 
 
 class Prompt_Builder:
@@ -12,7 +12,7 @@ class Prompt_Builder:
     def __init__(self, system_prompt=None):
         self.system_prompt = system_prompt
 
-    def build_prompt(self, history: History = None) -> list[str]:
+    def build_messages(self, history: Memory = None) -> list:
         """
         This method builds the actual prompt from the given information
         """
@@ -21,7 +21,9 @@ class Prompt_Builder:
             "role": "system",
             "content": self.system_prompt
         })
-        messages.extend(history.get_messages())
+        if history is not None:
+            messages.extend(history.get_messages())
+
         return messages
 
     def get_system_prompt(self):
@@ -30,3 +32,9 @@ class Prompt_Builder:
         how to behave
         """
         return self.system_prompt
+
+    def set_system_prompt(self, system_prompt):
+        """
+        This function sets the system prompt
+        """
+        self.system_prompt = system_prompt

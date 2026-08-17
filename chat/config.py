@@ -13,4 +13,4 @@ class Configuration:
         load_dotenv()
         self.api_key = os.getenv('OPEN_API_KEY')
         self.client = Groq(api_key=self.api_key)
-        self.model_name = 'llama-3.3-70b-versatile'
+        self.model_name = os.getenv('MODEL')
