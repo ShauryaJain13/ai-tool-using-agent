@@ -5,6 +5,7 @@ from chat.prompts import Prompt_Builder
 from tools.registry import ToolRegistry, Tool
 from controller import Controller
 from tools.calculator import Calculator
+from tools.read_file import ReadFile
 
 
 memory = Memory()
@@ -18,7 +19,6 @@ llm_client = LLMClient()
 tools = ToolRegistry()
 
 calculator = Calculator()
-
 calculator_tool = Tool(
     name="calculator",
     description="Evaluate a mathematical expression.",
@@ -31,7 +31,20 @@ calculator_tool = Tool(
                                        "expression to evaluate.")}},
                 "required": ["expression"]})
 
+read_file = ReadFile()
+read_file_tool = Tool(name="file_reader",
+                      description="Reads a file that has been entered.",
+                      function=read_file.execute,
+                      arguments={"type": "object",
+                                 "properties": {
+                                    "expression": {
+                                        "type": "string",
+                                        "description": ("The link of the file"
+                                                        "to be read")}},
+                                 "required": ["expression"]})
+
 tools.register(calculator_tool)
+tools.register(read_file_tool)
 agent = Agent(llm=llm_client, tools=tools, memory=memory,
               prompt_builder=prompt_builder)
 
