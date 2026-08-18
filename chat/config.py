@@ -11,6 +11,12 @@ class Configuration:
 
     def __init__(self):
         load_dotenv()
-        self.api_key = os.getenv('OPEN_API_KEY')
-        self.client = Groq(api_key=self.api_key)
+        self.api_key = os.getenv('GROQ_API_KEY')
         self.model_name = os.getenv('MODEL')
+        if not self.api_key:
+            raise ValueError("API Key not found in env")
+
+        if not self.model_name:
+            raise ValueError("Model not found in env")
+
+        self.client = Groq(api_key=self.api_key)

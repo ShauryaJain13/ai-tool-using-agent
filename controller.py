@@ -5,40 +5,42 @@ class Controller:
     entire chatbot
     """
 
-    def __init__(self, hist, system_prompt, prompt_builder, llm_client):
-        self.hist = hist
-        self.system_prompt = system_prompt
-        self.prompt_builder = prompt_builder
-        self.llm_client = llm_client
+    def __init__(self, agent):
+        self.agent = agent
 
     def handle_message(self, message: str):
         """
-        This function accepts an input from the user. It's default value is
-        None (i.e., no input)
+        This function accepts an input from the user
         """
-        self.hist.add_user_history(message)
-        prompt = self.prompt_builder.build_prompt(self.hist)
-        response = self.generate_reply(prompt)
-        self.hist.add_assistant_history(response)
-        return response
+        return self.agent.run(message)
 
-    def generate_reply(self, prompt):
+    def handle_exit(self):
         """
-        This function allows the assistant to generate a reply for the
-        user's prompt
+        Terminating application
         """
-        response = self.llm_client.generate(prompt)
-        return response
+        print("Exiting agent...")
 
-    def handle_exit():
+    def loop(self):
         """
-        This function is to handle closing the connection between user and LLM,
-        ensuring protection of memory and functions (I'm guessing for now) from
-        end of current conversation
+        Keeps running the application over and over until the user
+        decides to exit
         """
+        print("Agent has started. Type 'exit' or 'quit' to quit")
 
-    def run_loop():
-        """
-        Looping through the different stages of conversation for as many cycles
-        as needed: the process input, build prompt, generate response loop
-        """
+        while True:
+            try:
+                message = input("\nYou: ")
+
+                if message.lower() in {"exit", "quit"}:
+                    self.handle_exit()
+                    break
+
+                response = self.handle_message(message)
+                print(f"\nAssistant: {response}")
+
+            except KeyboardInterrupt:
+                self.handle_exit()
+                break
+
+            except Exception as e:
+                print(f"Error: {e}")

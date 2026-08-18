@@ -6,11 +6,12 @@ class Agent:
     This class decide which tool should be used, and whether the query has
     satisfactorily been handled
     """
-    def __init__(self, llm, tools, memory, max_iterations=10):
+    def __init__(self, llm, tools, memory, prompt_builder, max_iterations=10):
         self.llm = llm
         self.tools = tools
         self.memory = memory
         self.max_iterations = max_iterations
+        self.prompt_builder = prompt_builder
 
     def run(self, input):
         """
@@ -29,7 +30,13 @@ class Agent:
 
             tool_call = self._is_tool_call(response)
             if tool_call is None:
-                return response.content
+                if response is None:
+                    return "Sorry, I could not generate a response"
+
+                final_answer = response.content
+                self.memory.add({"role": "assistant",
+                                "content": final_answer})
+                return final_answer
 
             result = self._handle_tool_call(tool_call)
             self._add_tool_call_result(response, tool_call, result)
@@ -44,7 +51,7 @@ class Agent:
         if response is None:
             return None
 
-        if not response.tool_calls[0]:
+        if not response.tool_calls:
             return None
 
         return response.tool_calls[0]
@@ -89,21 +96,24 @@ class Agent:
             return tool.execute(arguments)
         except Exception as e:
             return {"status": "error",
-                    "error": e}
+                    "error": str(e)}
 
-    def _add_tool_call_result(self, response, result):
+    def _add_tool_call_result(self, response, call, result):
         """
-        Adding the tool call result to the response, so that the LLM can
-        evaluate it
+        Adding the tool call and its result to the memory
         """
+        tool_calls = [tool_call.model_dump()
+                      for tool_call in response.tool_calls]
+
         self.memory.add({"role": "assistant",
-                         "tool_call": response.tool_calls})
+                         "content": response.content,
+                         "tool_calls": tool_calls})
         self.memory.add({"role": "tool",
-                         "tool_call_id": "call.id",
+                         "tool_call_id": call.id,
                          "content": str(result)})
 
-    def _build_context(self, input):
+    def _build_context(self):
         """
         Create context for the LLM if necessary
         """
-        return self.memory.get_messages()
+        return self.prompt_builder.build_messages(self.memory)

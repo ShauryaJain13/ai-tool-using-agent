@@ -28,19 +28,21 @@ class LLMClient:
         """
         return response.choices[0].message
 
-    def generate(self, messages):
+    def generate(self, messages, tools=None):
         """
         This function is to generate a response from the LLM to the user's
         prompt
         """
         try:
-            response = self._send_request(messages)
+            response = self._send_request(messages, tools=tools)
             assistant_message = self._parse_response(response)
             return assistant_message
 
         except Exception as e:
-            self._handle_error(e)
-            return "Sorry, I couldn't contact the language model"
+            # self._handle_error(e)
+            # return "Sorry, I couldn't contact the language model"
+            print(f"LLM Error: {e}")
+            raise
 
     def _handle_error(self, error):
         """

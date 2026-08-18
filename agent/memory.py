@@ -4,29 +4,9 @@ class Memory:
     what messages have been given and what actions have been taken
     """
 
-    def __init__(self, user):
+    def __init__(self, user="New User"):
         self.user = user
         self.messages = []
-
-    # def add_user_history(self, message: str | None = None) -> None:
-    #     """
-    #     This method adds the new input to the history of inputs entered
-    #     by the user
-    #     """
-    #     self.messages.append({
-    #         "role": "user",
-    #         "content": message
-    #     })
-
-    # def add_assistant_history(self, message: str | None = None) -> None:
-    #     """
-    #     This method adds the new output to the history of outputs given
-    #     by the assistant
-    #     """
-    #     self.messages.append({
-    #         "role": "assistant",
-    #         "content": message
-    #     })
 
     def add(self, message):
         """

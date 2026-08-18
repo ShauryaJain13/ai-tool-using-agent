@@ -1,33 +1,39 @@
-from chat.controller import Controller
-from chat.history import History
-from chat.prompts import Prompt_Builder
+from agent.agent import Agent
+from agent.memory import Memory
 from chat.llm import LLMClient
-from chat.settings import SYSTEM_PROMPT
+from chat.prompts import Prompt_Builder
+from tools.registry import ToolRegistry, Tool
+from controller import Controller
+from tools.calculator import Calculator
 
 
-def main():
-    """
-    Point of creation of new object, and used to run the application
-    """
+memory = Memory()
 
-    history = History(user="New User")
-    prompt_builder = Prompt_Builder(system_prompt=SYSTEM_PROMPT)
-    llm_client = LLMClient()
-    controller = Controller(hist=history, system_prompt=SYSTEM_PROMPT,
-                            prompt_builder=prompt_builder,
-                            llm_client=llm_client)
-    print("Forecasting agent v0.0.1")
-    print("Type 'exit' to quit\n")
+prompt_builder = Prompt_Builder(
+    system_prompt="""You are a helpful AI assistant.
+    Use tools when necessary to answer the user's questions.
+    If you are using a tool, mention the tool you are using explicitly""")
 
-    while True:
-        message = input("You: ")
-        if message.lower() == "exit":
-            print("Goodbye!")
-            break
+llm_client = LLMClient()
+tools = ToolRegistry()
 
-        response = controller.handle_message(message)
-        print(f"Assistant: {response}\n")
+calculator = Calculator()
 
+calculator_tool = Tool(
+    name="calculator",
+    description="Evaluate a mathematical expression.",
+    function=calculator.execute,
+    arguments={"type": "object",
+               "properties": {
+                   "expression": {
+                       "type": "string",
+                       "description": ("The mathematical"
+                                       "expression to evaluate.")}},
+                "required": ["expression"]})
 
-if __name__ == "__main__":
-    main()
+tools.register(calculator_tool)
+agent = Agent(llm=llm_client, tools=tools, memory=memory,
+              prompt_builder=prompt_builder)
+
+controller = Controller(agent)
+controller.loop()
