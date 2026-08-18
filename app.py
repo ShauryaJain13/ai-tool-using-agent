@@ -33,15 +33,17 @@ calculator_tool = Tool(
 
 read_file = ReadFile()
 read_file_tool = Tool(name="file_reader",
-                      description="Reads a file that has been entered.",
+                      description="Reads a file that has been entered and"
+                      "returns the contents",
                       function=read_file.execute,
                       arguments={"type": "object",
                                  "properties": {
-                                    "expression": {
+                                    "file_path": {
                                         "type": "string",
-                                        "description": ("The link of the file"
-                                                        "to be read")}},
-                                 "required": ["expression"]})
+                                        "description": ("The path of the file"
+                                                        "to read, relative to"
+                                                        "the directory")}},
+                                 "required": ["file_path"]})
 
 tools.register(calculator_tool)
 tools.register(read_file_tool)
